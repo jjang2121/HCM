@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hcm.grw.model.mapper.hr.CompanyDaoImpl">
+	
+	<insert id="insertCompanyInfo" parameterType="java.util.Map">
+		INSERT INTO COMPANY(COMP_ID, COMP_NAME, COMP_NUM, 
+					COMP_CEO_NAME, COMP_TEL, COMP_FAX, 
+					COMP_POST, COMP_ADDR1, COMP_ADDR2, 
+					COMP_SEAL, COMP_CREATE_ID, COMP_CREATE_DT, 
+					COMP_MODIFY_ID, COMP_MODIFY_DT, COMP_EMAIL)
+			VALUES(#{comp_id}, #{comp_name}, #{comp_num}, 
+					#{comp_ceo_name}, #{comp_tel}, #{comp_fax}, 
+					#{comp_post}, #{comp_addr1}, #{comp_addr2}, 
+					'', #{comp_create_id}, CURRENT_DATE , 
+					'', '', '#{comp_email}')
+	</insert>
+	
+	<update id="correctionCompanyInfo" parameterType="CompanyDto">
+		UPDATE COMPANY SET COMP_NAME = #{comp_name},
+						   COMP_NUM = #{comp_num},
+						   COMP_CEO_NAME = #{comp_ceo_name},
+						   COMP_TEL = #{comp_tel},
+						   COMP_FAX = #{comp_fax},
+						   COMP_POST = #{comp_post},
+						   COMP_ADDR1 = #{comp_addr1},
+						   COMP_ADDR2 = #{comp_addr2},
+						   COMP_MODIFY_ID = #{comp_modify_id},
+						   COMP_MODIFY_DT = CURRENT_DATE,
+						   COMP_EMAIL = #{comp_email}
+						   <if test="comp_seal != null and !comp_seal.equals('')">
+						   ,COMP_SEAL = #{comp_seal,jdbcType=BLOB}
+						   </if>
+			WHERE COMP_ID = #{comp_id}
+	</update>
+	
+	<update id="insertCompanySeal" parameterType="java.util.Map">
+		UPDATE COMPANY SET COMP_SEAL = #{comp_seal,jdbcType=BLOB}
+			WHERE COMP_ID = #{comp_id}
+	</update>
+	
+	<select id="showCompanyInfo" resultType="CompanyDto" parameterType="java.util.Map">
+		SELECT COMP_ID, COMP_NAME, COMP_NUM, 
+				COMP_CEO_NAME, COMP_TEL, COMP_FAX, 
+				COMP_POST, COMP_ADDR1, COMP_ADDR2, 
+				COMP_SEAL, COMP_CREATE_ID, COMP_CREATE_DT, 
+				COMP_MODIFY_ID, COMP_MODIFY_DT, COMP_EMAIL
+			FROM COMPANY
+			WHERE COMP_ID = #{comp_id}
+	</select>
+	
+	<select id="showCompanySeal" resultType="CompanyDto" parameterType="java.util.Map">
+		SELECT COMP_SEAL
+			FROM COMPANY
+			WHERE COMP_ID = #{comp_id}
+	</select>
+	
+</mapper>

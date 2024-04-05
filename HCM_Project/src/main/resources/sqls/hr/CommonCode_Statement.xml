@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hcm.grw.model.mapper.hr.CommonCodeDaoImpl">
+	
+	<select id="selectAllRole" parameterType="java.util.Map" resultType="CommonCodeDto">
+		SELECT 
+		      COCO_CD, COCO_NAME , COCO_CREATE_ID , TO_CHAR(COCO_CREATE_DT, 'YYYY-MM-DD') AS COCO_CREATE_DT , COCO_DELFLAG
+		FROM    COMMON_CODE
+		WHERE      SUBSTR(COCO_CD, 1, 2) = #{role}
+		AND      COCO_PARENT_ID IS NOT NULL
+		ORDER BY COCO_CD ASC
+	</select>
+	
+	<select id="selectOneRole" parameterType="java.util.Map" resultType="CommonCodeDto">
+		SELECT 
+		      COCO_CD , COCO_NAME
+		FROM    COMMON_CODE
+		WHERE    COCO_DELFLAG = 'N'
+		AND      SUBSTR(COCO_CD, 1, 2) = #{role}
+		AND      COCO_PARENT_ID IS NOT NULL
+		AND 	 COCO_CD = #{coco_cd}
+	</select>
+	
+	<update id="deleteRoleOne" parameterType="java.util.Map">
+		UPDATE COMMON_CODE SET COCO_DELFLAG = 'Y'
+			WHERE COCO_CD = #{coco_cd}
+	</update>
+	
+	
+	<insert id="insertRoleOne" parameterType="java.util.Map">
+		INSERT INTO COMMON_CODE (COCO_CD, COCO_NAME, COCO_PARENT_ID, COCO_CREATE_ID)
+						VALUES(#{coco_cd}, #{coco_name}, (
+						                     SELECT 
+						                           COCO_CD
+						                     FROM    COMMON_CODE
+						                     WHERE    COCO_DELFLAG = 'N'
+						                     AND      SUBSTR(COCO_CD, 1, 2) = #{role}
+						                     AND      COCO_PARENT_ID IS NULL
+						                     ), #{coco_create_id})
+	</insert>
+	
+	
+	
+	<update id="correctionRole" parameterType="java.util.Map">
+		UPDATE COMMON_CODE SET COCO_NAME = #{coco_name} , COCO_MODIFY_ID = #{coco_modify_id} , COCO_MODIFY_DT = CURRENT_DATE
+			WHERE COCO_CD = #{coco_cd}
+	</update>
+	
+	<select id="roleCodeDuplicateChk" parameterType="java.util.Map" resultType="Integer">
+		SELECT  COUNT(COCO_CD)
+			FROM    COMMON_CODE
+			WHERE    COCO_CD = #{coco_cd}
+			AND      SUBSTR(COCO_CD, 1, 2) = #{role}
+			AND      COCO_PARENT_ID IS NOT NULL
+	</select>
+
+	<select id="roleNameDuplicateChk" parameterType="java.util.Map" resultType="Integer">
+		SELECT  COUNT(COCO_NAME)
+			FROM    COMMON_CODE
+			WHERE    COCO_NAME = #{coco_name}
+			AND      SUBSTR(COCO_CD, 1, 2) = #{role}
+			AND      COCO_PARENT_ID IS NOT NULL
+	</select>	
+	
+	<select id="delCodeChk" parameterType="Map" resultType="Integer">
+		SELECT COUNT(EMPL_DEPT_CD) 
+			FROM EMPLOYEE e 
+			<choose>
+				<when test="role == 'DT'">
+					WHERE EMPL_DEPT_CD = #{empl_dept_cd}
+				</when>
+				<when test="role == 'RK'">
+					WHERE EMPL_RANK_CD  = #{empl_rank_cd}
+				</when>
+				<when test="role == 'PN'">
+					WHERE EMPL_POSITION_CD  = #{empl_position_cd}
+				</when>
+			</choose>
+	</select>
+	
+</mapper>
